@@ -1,198 +1,214 @@
-<script src="https://d3js.org/d3.v5.js"></script>
-<script src="https://d3js.org/d3-array.v1.min.js"></script>
-<script src="https://d3js.org/d3-collection.v1.min.js"></script>
-<script src="https://d3js.org/d3-color.v1.min.js"></script>
-<script src="https://d3js.org/d3-format.v1.min.js"></script>
-<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
-<script src="https://d3js.org/d3-time.v1.min.js"></script>
-<script src="https://d3js.org/d3-time-format.v2.min.js"></script>
-<script src="https://d3js.org/d3-scale.v2.min.js"></script>
+<html>
 
-<h1> Demo of Bubble chart in D3 </h1>
-
-
-<svg>
-  <text x=10 y=10 >Bubble</text>
-</svg>
+<head>
+    <meta charset="utf-8">
+    <title>HK Budget</title>
+</head>
 
 <style>
-    svg {
-        width: 300px;
-        height: 200px;
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+    }
+    
+    .axis text {
+        font-family: sans-serif;
+        font-size: 13px;
+    }
+    
+    .MyRect {
+        fill: rgb(10, 89, 121);
+    }
+    
+    .MyText {
+        fill: white;
+        text-anchor: middle;
     }
 </style>
 
+<style>
+    body {
+        background-color: rgba(204, 250, 235, 0.712);
+        font-family: 'Times New Roman', Times, serif
+    }
+    
+    svg {
+        width: 700px;
+        height: 400px;
+    }
+</style>
 
-<script>
-    var x = d3.scaleLinear()
-        .domain([0, 230]) // range of your raw data
-        .range([10, 310]); // range of svg coordinates
-    var y = d3.scaleLinear()
-        .domain([0, 100]) // range of your raw data
-        .range([200, 0]); // range of svg coordinates
+<body>
+    <h1> HK Budget of 2018-2019 </h1>
+    <h3> (1) Amount and Sources of the Revenue (Billion HKD) </h3>
+    <h4>The highest income of the total revenue of 2018 was from profits tax, and the lowest income was from salaries tax. </h4>
 
-    var xAxis = d3.axisBottom().scale(x); // Bottom means the figures lie below the axis
-    var yAxis = d3.axisLeft().scale(y); // Left means the figures lie on the left side of the axis
+    <svg>
+            <text x=30 y=380 >Investment Income</text>
+            <text x=130 y=360 >Land Premium</text>
+            <text x=260 y=380 >Profits Tax</text>
+            <text x=350 y=360 >Salaries Tax</text>
+            <text x=450 y=380 >Stamp Duties</text>
+            <text x=560 y=360 >Other Revenue</text>
+          </svg>
 
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script>
+        //画布大小
+        var width = 700;
+        var height = 400;
 
+        //在 body 里添加一个 SVG 画布	
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
 
-    var svg = d3.select('svg');
+        //画布周边的空白
+        var padding = {
+            left: 30,
+            right: 30,
+            top: 20,
+            bottom: 20
+        };
 
-    svg.append('g')
-        .attr('transform', 'translate(10,180)')
-        .call(xAxis) // g means group; call(xAxis) means drawing xAxis to group
+        //定义一个数组
+        var dataset = [39.8, 121, 155.1, 54.8, 100, 133.8];
 
-    svg.append('g')
-        .attr('transform', 'translate(20,0)')
-        .call(yAxis)
+        //x轴的比例尺
+        var xScale = d3.scale.ordinal()
+            .domain(d3.range(dataset.length))
+            .rangeRoundBands([0, width - padding.left - padding.right]);
 
-    // svg.remove();
-    var data = [{
-        'height': 170,
-        'weight': 70,
-    }, {
-        'height': 160,
-        'weight': 50,
-    }, {
-        'height': 180,
-        'weight': 70,
-    }, {
-        'height': 180,
-        'weight': 80,
-    }, {
-        'height': 140,
-        'weight': 40,
-    }, ];
+        //y轴的比例尺
+        var yScale = d3.scale.linear()
+            .domain([0, d3.max(dataset)])
+            .range([height - padding.top - padding.bottom, 0]);
 
-    var data2 = [{
-        'height': 170,
-        'weight': 70,
-    }, {
-        'height': 160,
-        'weight': 50,
-    }, {
-        'height': 180,
-        'weight': 70,
-    }, {
-        'height': 180,
-        'weight': 80,
-    }, {
-        'height': 140,
-        'weight': 80,
-    }, ];
+        //定义x轴
+        var xAxis = d3.svg.axis()
+            .scale(xScale)
+            .orient("bottom");
 
+        //定义y轴
+        var yAxis = d3.svg.axis()
+            .scale(yScale)
+            .orient("left");
 
+        //矩形之间的空白
+        var rectPadding = 20;
 
-
-    var dataset = [
-        [2001, [{
-            'height': 170,
-            'weight': 70,
-        }, {
-            'height': 160,
-            'weight': 50,
-        }, {
-            'height': 180,
-            'weight': 70,
-        }, {
-            'height': 180,
-            'weight': 80,
-        }, {
-            'height': 100,
-            'weight': 40,
-        }, ]],
-        [2002, [{
-            'height': 170,
-            'weight': 70,
-        }, {
-            'height': 160,
-            'weight': 50,
-        }, {
-            'height': 180,
-            'weight': 70,
-        }, {
-            'height': 180,
-            'weight': 80,
-        }, {
-            'height': 120,
-            'weight': 80,
-        }, ]],
-        [2003, [{
-            'height': 180,
-            'weight': 70,
-        }, {
-            'height': 170,
-            'weight': 50,
-        }, {
-            'height': 190,
-            'weight': 70,
-        }, {
-            'height': 200,
-            'weight': 80,
-        }, {
-            'height': 130,
-            'weight': 80,
-        }, ]],
-    ]
-
-    var frameHeight = 150;
-
-    svg
-        .selectAll('circle')
-        .data(dataset[0][1])
-        .enter() // just enter the final position immediately
-        .append('circle')
-        .attr('cx', function(d) {
-            return x(d['height']);
-        })
-        .attr('cy', function(d) {
-            // console.log(d['weight'])
-            // return frameHeight - d['weight'];
-            return y(d['weight']);
-        })
-        .attr('r', function(d) {
-            return d['weight'] / 10
-            return Math.sqrt(d['weight']);
-        })
-        .attr('fill', '#ff0000')
-
-
-
-
-    var keySnapshot = 0;
-    d3.interval(function() {
-        keySnapshot = (keySnapshot + 1) % dataset.length;
-        svg
-            .selectAll('circle')
-            .data(dataset[keySnapshot][1])
-            .transition() // show the transition process
-            // .duration(300)
-            .attr('cx', function(d) {
-                return x(d['height']);
+        //添加矩形元素
+        var rects = svg.selectAll(".MyRect")
+            .data(dataset)
+            .enter()
+            .append("rect")
+            .attr("class", "MyRect")
+            .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
+            .attr("x", function(d, i) {
+                return xScale(i) + rectPadding / 2;
             })
-            .attr('cy', function(d) {
-                // console.log(d['weight'])
-                // return frameHeight - d['weight'];
-                return y(d['weight']);
+            .attr("y", function(d) {
+                return yScale(d);
             })
-            .attr('r', function(d) {
-                return d['weight'] / 10
-                return Math.sqrt(d['weight']);
+            .attr("width", xScale.rangeBand() - rectPadding)
+            .attr("height", function(d) {
+                return height - padding.top - padding.bottom - yScale(d);
+            });
+
+        //添加文字元素
+        var texts = svg.selectAll(".MyText")
+            .data(dataset)
+            .enter()
+            .append("text")
+            .attr("class", "MyText")
+            .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
+            .attr("x", function(d, i) {
+                return xScale(i) + rectPadding / 2;
             })
-            .attr('fill', '#0000ff')
-    }, 1000)
-</script>
+            .attr("y", function(d) {
+                return yScale(d);
+            })
+            .attr("dx", function() {
+                return (xScale.rangeBand() - rectPadding) / 2;
+            })
+            .attr("dy", function(d) {
+                return 20;
+            })
+            .text(function(d) {
+                return d;
+            });
 
 
-<!-- // var frameHeight = 150;
 
-    // for (i = 0; i < data.length; i++) {
-    //     var x = data[i]['height'];
-    //     var y = frameHeight - data[i]['weight'];
-    //     svg.append('circle').attr('cx', x).attr('cy', y).attr('r', 3)
-    // };
+        //添加x轴
+        svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(" + padding.left + "," + (height - padding.bottom) + ")")
+            .call(xAxis);
 
-    // svg.append('circle').attr('cx', 170).attr('cy', 30).attr('r', 3)
-    // svg.append('circle').attr('cx', 160).attr('cy', 50).attr('r', 3)
-    // svg.append('circle').attr('cx', 180).attr('cy', 30).attr('r', 3)
-    // svg.append('circle').attr('cx', 180).attr('cy', 20).attr('r', 3) -->
+        //添加y轴
+        svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
+            .call(yAxis);
+    </script>
+
+
+
+    <h3> (2) Budgetal Expenditure (Billion HKD) </h3>
+    <script>
+        var width = 400;
+        var height = 600;
+        var dataset = [113.7, 78, 92.2, 85.6, 26.7, 21.3, 53.3, 87.1];
+
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        var pie = d3.layout.pie();
+
+        var piedata = pie(dataset);
+
+        var outerRadius = 150; //外半径
+        var innerRadius = 100; //内半径，为0则中间没有空白
+
+        var arc = d3.svg.arc() //弧生成器
+            .innerRadius(innerRadius) //设置内半径
+            .outerRadius(outerRadius); //设置外半径
+
+        var color = d3.scale.category10();
+
+        var arcs = svg.selectAll("g")
+            .data(piedata)
+            .enter()
+            .append("g")
+            .attr("transform", "translate(" + (width / 2) + "," + (width / 2) + ")");
+
+        arcs.append("path")
+            .attr("fill", function(d, i) {
+                return color(i);
+            })
+            .attr("d", function(d) {
+                return arc(d);
+            });
+
+        arcs.append("text")
+            .attr("transform", function(d) {
+                return "translate(" + arc.centroid(d) + ")";
+            })
+            .attr("text-anchor", "middle")
+            .text(function(d) {
+                return d.data;
+            });
+
+        console.log(dataset);
+        console.log(piedata);
+    </script>
+
+</body>
+
+</html>
